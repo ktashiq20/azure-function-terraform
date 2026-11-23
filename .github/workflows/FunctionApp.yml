@@ -109,23 +109,23 @@ jobs:
         # Define container name and convert to lowercase
         container_name=$(echo "functionapp-tfstateblob" | tr '[:upper:]' '[:lower:]')
         # Check if the container exists
-        if ! az storage container exists --name $container_name --account-name ${{ env.STATE_FILE_SA_NAME }} --account-key ${{ env.STORAGE_KEY }} --query "exists" -o tsv | grep -q true; then
-          # Create the container if it doesn't exist
+OBOBOB        if ! az storage container exists --name $container_name --account-name ${{ env.STATE_FILE_SA_NAME }} --account-key ${{ env.STORAGE_KEY }} --query "exists" -o tsv | grep -q true; then
+OBOBOB          # Create the container if it doesn't exist
           az storage container create --name $container_name --account-name ${{ env.STATE_FILE_SA_NAME }} --account-key ${{ env.STORAGE_KEY }}
           echo "Created container $container_name"
         else
-          echo "Container $container_name already exists"
+OBOBOB          echo "Container $container_name already exists"
         fi
         echo "CONTAINER_NAME=$container_name" >> $GITHUB_ENV
 
     - name: Terraform Init
-      env:
+OBOBOB      env:
         AZURE_STORAGE_ACCOUNT_NAME: ${{ env.STATE_FILE_SA_NAME }}
         AZURE_STORAGE_CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
         AZURE_STORAGE_ACCESS_KEY: ${{ env.STORAGE_KEY }}
         AZURE_STORAGE_KEY: ${{ inputs.FUNAPP_CHOICE == 'WebApp_GipService' && format('WebApp-{0}-{1}-uks-terraform.tfstate', inputs.INTEGRATION_NAME, inputs.ENVIRONMENT) || format('func-{0}-{1}-uks-terraform.tfstate', inputs.INTEGRATION_NAME, inputs.ENVIRONMENT) }}
-      run: terraform init -backend-config="storage_account_name=${AZURE_STORAGE_ACCOUNT_NAME}" -backend-config="container_name=${AZURE_STORAGE_CONTAINER_NAME}" -backend-config="access_key=${AZURE_STORAGE_ACCESS_KEY}" -backend-config="key=${AZURE_STORAGE_KEY}"
-
+OBOBOB      run: terraform init -backend-config="storage_account_name=${AZURE_STORAGE_ACCOUNT_NAME}" -backend-config="container_name=${AZURE_STORAGE_CONTAINER_NAME}" -backend-config="access_key=${AZURE_STORAGE_ACCESS_KEY}" -backend-config="key=${AZURE_STORAGE_KEY}"
+OBOBOB
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       env:
@@ -133,7 +133,7 @@ jobs:
         TF_VAR_GITHUB_PAT_TOKEN: ${{ secrets.GIP_GITHUB_TOKEN }}
         TF_VAR_GITHUB_BRANCH_NAME: ${{ github.ref_name }}
       run: terraform plan -input=false -var-file=./environments/${{ inputs.REGION }}/${{ inputs.ENVIRONMENT }}.tfvars
-
+OBOBOB
     - name: Terraform Apply
       env:
         TF_VAR_INTEGRATION_NAME: ${{ inputs.INTEGRATION_NAME }}
@@ -141,3 +141,4 @@ jobs:
         TF_VAR_GITHUB_BRANCH_NAME: ${{ github.ref_name }}
       run: terraform apply -auto-approve -input=false -var-file=./environments/${{ inputs.REGION }}/${{ inputs.ENVIRONMENT }}.tfvars
       #if: github.ref == 'refs/heads/"master"' && github.event_name == 'push'
+
